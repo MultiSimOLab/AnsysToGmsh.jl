@@ -20,7 +20,18 @@ model = GmshDiscreteModel("model.msh")
 V  = TestFESpace(model, reffe, dirichlet_tags = ["Y0"])
 ```
 
-No dependencies beyond Julia itself.
+Or skip the `.msh` file altogether and build the Gridap model in memory
+(needs GridapGmsh loaded, which `using HyperFEM` does):
+
+```julia
+using AnsysToGmsh, HyperFEM
+model = CDBDiscreteModel("model.cdb")                  # same model as the .msh route
+model = CDBDiscreteModel("hexdominant.cdb"; split=true)
+model = DiscreteModelFromFile("model.cdb")             # default options
+```
+
+No hard dependencies: the in-memory route is a package extension that loads
+when GridapGmsh is present.
 
 ## Installation
 
@@ -100,6 +111,7 @@ mesh = convert_cdb(cdb;
                    interior_faces = true,
                    verbose = true)
 write_msh("model.msh", mesh)
+model = CDBDiscreteModel(mesh)             # or straight into Gridap (GridapGmsh loaded)
 ```
 
 ## Exporting from Workbench

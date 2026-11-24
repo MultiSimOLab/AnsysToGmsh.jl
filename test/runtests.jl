@@ -191,7 +191,17 @@ end
         @test area("boundary") ≈ 6e4
         lab = get_face_labeling(model)
         @test any(get_face_mask(lab, "TOP", 0) .& get_face_mask(lab, "Y0", 0))
+        # in-memory route gives the very same model
+        mem = CDBDiscreteModel(joinpath(DATA, file); verbose=false, kw...)
+        lab2 = get_face_labeling(mem)
+        @test get_tag_name(lab2) == get_tag_name(lab)
+        @test get_cell_node_ids(mem) == get_cell_node_ids(model)
+        @test Gridap.Geometry.get_node_coordinates(get_grid(mem)) == Gridap.Geometry.get_node_coordinates(get_grid(model))
+        for t in ("MATA", "TOP", "Y0", "INTERFACE", "boundary"), d in 0:3
+          @test get_face_mask(lab2, t, d) == get_face_mask(lab, t, d)
+        end
       end
+      @test num_cells(DiscreteModelFromFile(joinpath(DATA, "model2_tet_order1.cdb"))) == 1619
     end
   end
 end
